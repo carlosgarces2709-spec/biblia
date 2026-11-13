@@ -3,29 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biblia de Estudio — RV1960 & BTX4</title>
+  <title>Biblia de Estudio Offline — RV1960 & BTX4</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#3b4252">
+  <meta name="theme-color" content="#12161f">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
   <style>
     :root {
-      /* Tema Papel / Sepia Suave (Por defecto para lectura cómoda) */
-      --bg-primary: #fbf9f5;
-      --bg-surface: #ffffff;
-      --bg-accent: #f1ede4;
-      --text-primary: #292524;
-      --text-secondary: #78716c;
-      --accent-color: #7c2d12;
-      --btx-color: #115e59;
-      --fav-highlight: #fef08a;
-      --selected-bg: rgba(124, 45, 18, 0.08);
-      --border-color: #e7e2d8;
-      --font-size: 19px;
-      --font-family: 'Georgia', 'Cambria', 'Times New Roman', serif;
-      --ui-font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    }
-
-    [data-theme="dark"] {
+      /* MODO OSCURO PREDETERMINADO */
       --bg-primary: #12161f;
       --bg-surface: #1b2230;
       --bg-accent: #262f40;
@@ -33,9 +17,36 @@
       --text-secondary: #94a3b8;
       --accent-color: #f59e0b;
       --btx-color: #2dd4bf;
-      --fav-highlight: rgba(234, 179, 8, 0.25);
-      --selected-bg: rgba(245, 158, 11, 0.14);
+      --selected-bg: rgba(245, 158, 11, 0.16);
       --border-color: #2d3748;
+      --font-size: 19px;
+      --font-family: 'Georgia', 'Cambria', 'Times New Roman', serif;
+      --ui-font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+      /* Colores de Subrayado en Modo Oscuro */
+      --hl-yellow: rgba(250, 204, 21, 0.28);
+      --hl-green: rgba(52, 211, 153, 0.25);
+      --hl-blue: rgba(56, 189, 248, 0.25);
+      --hl-pink: rgba(244, 114, 182, 0.25);
+    }
+
+    [data-theme="light"] {
+      /* MODO PAPEL SEPIA OPCIONAL */
+      --bg-primary: #fbf9f5;
+      --bg-surface: #ffffff;
+      --bg-accent: #f1ede4;
+      --text-primary: #292524;
+      --text-secondary: #78716c;
+      --accent-color: #7c2d12;
+      --btx-color: #0f766e;
+      --selected-bg: rgba(124, 45, 18, 0.09);
+      --border-color: #e7e2d8;
+
+      /* Colores de Subrayado en Modo Claro */
+      --hl-yellow: #fef08a;
+      --hl-green: #bbf7d0;
+      --hl-blue: #bae6fd;
+      --hl-pink: #fbcfe8;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -66,7 +77,7 @@
       max-width: 460px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.3);
     }
     .progress-bar-bg {
       width: 100%;
@@ -79,21 +90,22 @@
     .progress-bar-fill {
       height: 100%;
       width: 0%;
-      background: var(--accent-color);
+      background: linear-gradient(90deg, var(--accent-color), var(--btx-color));
       transition: width 0.3s ease;
     }
 
-    /* Barra Superior Minimalista */
+    /* Barra Superior */
     header {
       position: sticky;
       top: 0;
       z-index: 100;
       background: var(--bg-surface);
       border-bottom: 1px solid var(--border-color);
-      padding: 0.6rem 1.25rem;
+      padding: 0.65rem 1.25rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
     }
     .nav-container {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: 0 auto;
       display: flex;
       flex-wrap: wrap;
@@ -108,7 +120,7 @@
       align-items: center;
     }
     select, input[type="text"], button {
-      padding: 0.42rem 0.75rem;
+      padding: 0.44rem 0.75rem;
       border-radius: 7px;
       border: 1px solid var(--border-color);
       background: var(--bg-primary);
@@ -116,51 +128,56 @@
       font-size: 0.88rem;
       font-family: var(--ui-font);
       cursor: pointer;
+      transition: all 0.15s;
+    }
+    select:focus, input[type="text"]:focus {
+      outline: 2px solid var(--accent-color);
     }
     button:hover { background: var(--bg-accent); }
 
     .mode-pills {
       display: flex;
       background: var(--bg-accent);
-      padding: 0.18rem;
+      padding: 0.2rem;
       border-radius: 9px;
       gap: 0.15rem;
     }
     .mode-btn {
       border: none;
       background: transparent;
-      padding: 0.35rem 0.75rem;
+      padding: 0.36rem 0.75rem;
       border-radius: 7px;
       font-weight: 600;
       font-size: 0.84rem;
+      color: var(--text-secondary);
     }
     .mode-btn.active {
       background: var(--bg-surface);
       color: var(--accent-color);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
     }
 
-    /* Contenedor Editorial del Capítulo */
+    /* Hoja de Lectura Editorial */
     main {
-      max-width: 1120px;
-      margin: 2rem auto;
-      padding: 0 1.5rem 6rem;
+      max-width: 1140px;
+      margin: 1.75rem auto;
+      padding: 0 1.25rem 6rem;
     }
     .book-page {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 2.5rem 3rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.12);
     }
     @media (max-width: 768px) {
-      main { padding: 0 0.75rem 6rem; margin: 1rem auto; }
-      .book-page { padding: 1.5rem 1.25rem; }
+      main { padding: 0 0.6rem 6rem; margin: 0.75rem auto; }
+      .book-page { padding: 1.5rem 1.15rem; }
     }
 
     .chapter-header {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.75rem;
       padding-bottom: 1rem;
       border-bottom: 1px solid var(--border-color);
     }
@@ -169,19 +186,18 @@
       font-size: 2rem;
       font-weight: 700;
       color: var(--accent-color);
-      letter-spacing: -0.02em;
     }
     .version-headers {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 2.5rem;
       margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
+      padding-bottom: 0.55rem;
       border-bottom: 2px solid var(--border-color);
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       color: var(--text-secondary);
     }
 
@@ -189,7 +205,7 @@
     .continuous-reading {
       font-family: var(--font-family);
       font-size: var(--font-size);
-      line-height: 1.85;
+      line-height: 1.88;
       text-align: justify;
     }
     .verse-inline {
@@ -197,7 +213,7 @@
       padding: 2px 0;
       border-radius: 4px;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: background 0.12s;
     }
     .verse-inline:hover {
       background: var(--bg-accent);
@@ -208,45 +224,19 @@
       text-decoration-color: var(--accent-color);
       text-underline-offset: 4px;
     }
-    .verse-inline.favorited {
-      background: var(--fav-highlight);
-    }
-    .v-sup {
-      font-family: var(--ui-font);
-      font-size: 0.68em;
-      font-weight: 800;
-      color: var(--accent-color);
-      vertical-align: super;
-      margin-right: 3px;
-      margin-left: 4px;
-      user-select: none;
-    }
-    .comment-dot {
-      display: inline-block;
-      font-family: var(--ui-font);
-      font-size: 0.65em;
-      font-weight: 700;
-      color: var(--btx-color);
-      background: var(--bg-accent);
-      padding: 0 5px;
-      border-radius: 4px;
-      margin-left: 3px;
-      vertical-align: middle;
-      cursor: pointer;
-    }
 
-    /* Lectura Paralela a Dos Columnas Sin Recuadros */
+    /* Lectura Paralela Fluida a Dos Columnas */
     .parallel-grid {
       font-family: var(--font-family);
       font-size: var(--font-size);
-      line-height: 1.78;
+      line-height: 1.8;
     }
     .parallel-pair {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 2.5rem;
-      padding: 0.45rem 0.5rem;
-      border-bottom: 1px solid rgba(0,0,0,0.04);
+      padding: 0.45rem 0.6rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
       border-radius: 6px;
       cursor: pointer;
       transition: background 0.12s;
@@ -256,15 +246,51 @@
     }
     .parallel-pair.selected {
       background: var(--selected-bg);
+      outline: 1px solid var(--accent-color);
     }
-    .parallel-pair.favorited {
-      background: var(--fav-highlight);
+
+    /* Clases de Subrayado de Estudio */
+    .hl-yellow { background-color: var(--hl-yellow) !important; }
+    .hl-green  { background-color: var(--hl-green) !important; }
+    .hl-blue   { background-color: var(--hl-blue) !important; }
+    .hl-pink   { background-color: var(--hl-pink) !important; }
+
+    .v-sup {
+      font-family: var(--ui-font);
+      font-size: 0.68em;
+      font-weight: 800;
+      color: var(--accent-color);
+      vertical-align: super;
+      margin-right: 4px;
+      margin-left: 3px;
+      user-select: none;
     }
+    .fav-star-inline {
+      color: #eab308;
+      font-size: 0.75em;
+      margin-right: 3px;
+      vertical-align: super;
+    }
+    .comment-dot {
+      display: inline-block;
+      font-family: var(--ui-font);
+      font-size: 0.65em;
+      font-weight: 700;
+      color: var(--btx-color);
+      background: var(--bg-accent);
+      border: 1px solid var(--border-color);
+      padding: 0 5px;
+      border-radius: 4px;
+      margin-left: 4px;
+      vertical-align: middle;
+      cursor: pointer;
+    }
+
     @media (max-width: 768px) {
       .version-headers { display: none; }
       .parallel-pair {
         grid-template-columns: 1fr;
-        gap: 0.4rem;
+        gap: 0.45rem;
         padding: 0.75rem 0.4rem;
         border-bottom: 1px solid var(--border-color);
       }
@@ -280,14 +306,13 @@
     }
     .mobile-v-label { display: none; }
 
-    /* Títulos Internos de Sección Bíblica */
     .section-heading {
       display: block;
       font-family: var(--ui-font);
       font-size: 1.05em;
       font-weight: 700;
       color: var(--accent-color);
-      margin: 1.4rem 0 0.5rem;
+      margin: 1.35rem 0 0.45rem;
       text-align: left;
     }
 
@@ -301,22 +326,35 @@
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: 999px;
-      padding: 0.5rem 1rem;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+      padding: 0.5rem 1.1rem;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.45);
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 0.6rem;
-      font-size: 0.9rem;
+      justify-content: center;
+      gap: 0.55rem;
+      font-size: 0.88rem;
+      max-width: 95vw;
     }
 
+    .color-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border-color);
+      cursor: pointer;
+      display: inline-block;
+      transition: transform 0.12s;
+    }
+    .color-dot:hover { transform: scale(1.18); }
+
     .dict-link {
-      color: #b91c1c;
+      color: var(--accent-color);
       font-weight: 700;
       text-decoration: underline;
       cursor: pointer;
     }
 
-    /* Navegación Inferior de Capítulo */
     .chapter-footer-nav {
       display: flex;
       justify-content: space-between;
@@ -345,7 +383,7 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.65);
       display: none;
       align-items: center;
       justify-content: center;
@@ -355,13 +393,14 @@
     .modal-content {
       background: var(--bg-surface);
       color: var(--text-primary);
-      max-width: 680px;
+      max-width: 720px;
       width: 100%;
-      max-height: 82vh;
+      max-height: 84vh;
       overflow-y: auto;
       border-radius: 12px;
       padding: 1.5rem;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.45);
     }
     .modal-header {
       display: flex;
@@ -374,17 +413,19 @@
     .hidden { display: none !important; }
   </style>
 </head>
-<body>
+<body data-theme="dark">
 
 <!-- Pantalla de Carga Inicial -->
 <div id="loadingOverlay">
   <div class="loader-card">
     <h2 style="color:var(--accent-color); margin-bottom:0.4rem;">📖 Biblia de Estudio</h2>
-    <p id="loadingText" style="color:var(--text-secondary); font-size:0.92rem;">Cargando biblioteca offline...</p>
+    <p id="loadingText" style="color:var(--text-secondary); font-size:0.92rem;">Iniciando biblioteca offline...</p>
     <div class="progress-bar-bg">
       <div id="loadingBar" class="progress-bar-fill"></div>
     </div>
-    <small id="loadingSubtext" style="color:var(--text-secondary);">Sincronizando RV1960 y BTX4 en memoria local.</small>
+    <small id="loadingSubtext" style="color:var(--text-secondary);">
+      Los módulos se guardan automáticamente en la memoria interna de tu navegador.
+    </small>
   </div>
 </div>
 
@@ -393,8 +434,8 @@
     <div class="controls-group">
       <select id="bookSelect" onchange="onBookChange()"></select>
       <select id="chapterSelect" onchange="loadChapter()"></select>
-      <button onclick="prevChapter()" title="Capítulo anterior (Flecha Izquierda)">◀</button>
-      <button onclick="nextChapter()" title="Siguiente capítulo (Flecha Derecha)">▶</button>
+      <button onclick="prevChapter()" title="Capítulo anterior (←)">◀</button>
+      <button onclick="nextChapter()" title="Siguiente capítulo (→)">▶</button>
     </div>
 
     <div class="mode-pills">
@@ -405,11 +446,12 @@
     </div>
 
     <div class="controls-group">
-      <input type="text" id="searchInput" placeholder="Buscar texto o cita..." onkeydown="if(event.key==='Enter') searchBibles()">
-      <button onclick="searchBibles()">🔍</button>
-      <button onclick="changeFontSize(-1)" title="Letra más pequeña">A-</button>
-      <button onclick="changeFontSize(1)" title="Letra más grande">A+</button>
-      <button onclick="toggleTheme()" title="Alternar modo sepia/oscuro">🌓</button>
+      <input type="text" id="searchInput" placeholder="Buscar palabra..." onkeydown="if(event.key==='Enter') searchBibles()">
+      <button onclick="searchBibles()" title="Buscar en ambas Biblias">🔍</button>
+      <button onclick="openDictionaryBrowser()" title="Explorar Diccionario BTX4 (§)">📚 §</button>
+      <button onclick="changeFontSize(-1)" title="Reducir letra">A-</button>
+      <button onclick="changeFontSize(1)" title="Aumentar letra">A+</button>
+      <button onclick="toggleTheme()" title="Cambiar entre Modo Oscuro y Modo Papel">🌓</button>
     </div>
   </div>
 </header>
@@ -435,13 +477,13 @@
       </div>
     </section>
 
-    <!-- Sección de Versículos Favoritos -->
+    <!-- Sección de Versículos Favoritos y Notas -->
     <section id="favsSection" class="hidden">
-      <div class="chapter-header" style="display:flex; justify-content:space-between; align-items:center;">
-        <h2 class="chapter-title" style="font-size:1.6rem;">⭐ Versículos Favoritos</h2>
+      <div class="chapter-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+        <h2 class="chapter-title" style="font-size:1.6rem;">⭐ Favoritos y Subrayados</h2>
         <div style="display:flex; gap:0.5rem;">
-          <button onclick="exportFavorites()">⬇️ Exportar</button>
-          <button onclick="document.getElementById('importFavInput').click()">⬆️ Importar</button>
+          <button onclick="exportFavorites()">⬇️ Exportar JSON</button>
+          <button onclick="document.getElementById('importFavInput').click()">⬆️ Importar JSON</button>
           <input type="file" id="importFavInput" class="hidden" accept=".json" onchange="importFavorites(event)">
         </div>
       </div>
@@ -450,11 +492,16 @@
   </div>
 </main>
 
-<!-- Barra Flotante de Acciones al tocar cualquier versículo -->
+<!-- Barra Flotante Inferior al tocar un versículo -->
 <div id="SelectionToolbar" class="hidden">
-  <strong id="selectedVerseLabel" style="color:var(--accent-color); margin-right:0.25rem;">Gén 1:1</strong>
-  <button id="toolbarFavBtn" onclick="toggleSelectedFavorite()">⭐ Favorito</button>
-  <button id="toolbarCommentBtn" class="hidden" onclick="openSelectedComment()">📝 Ver Comentario BTX4</button>
+  <strong id="selectedVerseLabel" style="color:var(--accent-color); margin-right:0.2rem;">Gén 1:1</strong>
+  <button id="toolbarFavBtn" onclick="toggleSelectedFavorite()">☆ Favorito</button>
+  <!-- Paleta de Subrayado -->
+  <span class="color-dot" style="background:#facc15;" onclick="setHighlight('hl-yellow')" title="Subrayar Amarillo"></span>
+  <span class="color-dot" style="background:#34d399;" onclick="setHighlight('hl-green')" title="Subrayar Verde"></span>
+  <span class="color-dot" style="background:#38bdf8;" onclick="setHighlight('hl-blue')" title="Subrayar Celeste"></span>
+  <span class="color-dot" style="background:#f472b6;" onclick="setHighlight('hl-pink')" title="Subrayar Rosa"></span>
+  <button id="toolbarCommentBtn" class="hidden" onclick="openSelectedComment()">📝 Comentario BTX4</button>
   <button onclick="copySelectedVerse()">📋 Copiar</button>
   <button onclick="clearSelection()" style="border:none; background:transparent; font-weight:bold;">✕</button>
 </div>
@@ -463,7 +510,7 @@
 <div id="modalBackdrop" class="modal-backdrop" onclick="if(event.target===this) closeModal()">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 id="modalTitle">Nota de Estudio</h3>
+      <h3 id="modalTitle" style="color:var(--accent-color);">Nota de Estudio</h3>
       <button onclick="closeModal()">✖ Cerrar</button>
     </div>
     <div id="modalBody" style="line-height:1.75; font-size:1.02rem;"></div>
@@ -471,6 +518,7 @@
 </div>
 
 <script>
+  // Archivos exactos subidos a la raíz del servidor junto a index.html
   const SERVER_FILES = [
     { key: 'rv',   url: 'Biblia Reina Valera 1960.bblx', label: 'Reina Valera 1960' },
     { key: 'btx',  url: '01-BTX4.bbli',                  label: 'Biblia Textual IV' },
@@ -517,7 +565,8 @@
   let SQL = null;
   let dbInstances = { rv: null, btx: null, cmtx: null, dctx: null };
   let currentMode = localStorage.getItem('bible_mode') || 'parallel';
-  let favorites = JSON.parse(localStorage.getItem('bible_favorites_v1') || '[]');
+  let favorites = JSON.parse(localStorage.getItem('bible_favorites_v2') || '[]');
+  let highlights = JSON.parse(localStorage.getItem('bible_highlights_v1') || '{}');
   let fontSize = parseInt(localStorage.getItem('bible_fontsize') || '19');
   let selectedVerse = null;
   let currentChapterComments = {};
@@ -552,13 +601,16 @@
   }
 
   window.addEventListener('DOMContentLoaded', async () => {
+    // Iniciar siempre en modo oscuro salvo que el usuario lo haya cambiado manualmente
+    const savedTheme = localStorage.getItem('bible_theme') || 'dark';
+    document.body.setAttribute('data-theme', savedTheme);
     document.documentElement.style.setProperty('--font-size', fontSize + 'px');
+
     initSelectors();
     updateFavCounter();
 
-    // Atajos de teclado para pasar capítulos cómodamente
     window.addEventListener('keydown', (e) => {
-      if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
       if (e.key === 'ArrowLeft') prevChapter();
       if (e.key === 'ArrowRight') nextChapter();
     });
@@ -577,12 +629,12 @@
         let buffer = await loadFromIDB(item.key);
 
         if (buffer) {
-          loadingText.textContent = `Abriendo ${item.label}...`;
+          loadingText.textContent = `Abriendo desde memoria offline: ${item.label}...`;
           dbInstances[item.key] = new SQL.Database(new Uint8Array(buffer));
         } else {
-          loadingText.textContent = `Descargando ${item.label} para uso offline...`;
+          loadingText.textContent = `Sincronizando ${item.label} para uso offline...`;
           const response = await fetch(encodeURI(item.url));
-          if (!response.ok) throw new Error(`No se encontró "${item.url}"`);
+          if (!response.ok) throw new Error(`No se encontró "${item.url}" en el servidor`);
           const arrayBuffer = await response.arrayBuffer();
           const uint8 = new Uint8Array(arrayBuffer);
           dbInstances[item.key] = new SQL.Database(uint8);
@@ -594,7 +646,7 @@
       document.getElementById('loadingOverlay').classList.add('hidden');
       setMode(currentMode);
     } catch (err) {
-      loadingText.innerHTML = `<span style="color:#dc2626; font-weight:700;">Error al cargar archivo:</span> ${err.message}`;
+      loadingText.innerHTML = `<span style="color:#ef4444; font-weight:700;">Error al cargar archivo:</span> ${err.message}`;
     }
   });
 
@@ -620,6 +672,7 @@
     if (triggerLoad) loadChapter();
   }
 
+  // Limpiador de formato RTF (RV1960) y HTML/UTF-16 (BTX4)
   function cleanBibleText(raw, isBTX = false) {
     if (!raw) return "";
     let text = String(raw).replace(/\u0000/g, '');
@@ -694,22 +747,23 @@
 
     const container = document.getElementById('versesList');
 
-    // MODO PARALELO: Dos columnas fluidas sin cajas pesadas
     if (currentMode === 'parallel') {
       container.className = 'parallel-grid';
       container.innerHTML = allVerseNums.map(v => {
         const favId = `${bookId}-${chapter}-${v}`;
         const isFav = favorites.some(f => f.id === favId);
+        const hlClass = highlights[favId] || (isFav ? 'hl-yellow' : '');
+        const starHtml = isFav ? '<span class="fav-star-inline">★</span>' : '';
         const hasComment = Boolean(currentChapterComments[v]);
         const commentBadge = hasComment
-          ? `<span class="comment-dot" onclick="event.stopPropagation(); showVerseComment(${bookId}, ${chapter}, ${v})" title="Ver comentario BTX4">📝 nota</span>`
+          ? `<span class="comment-dot" onclick="event.stopPropagation(); showVerseComment(${bookId}, ${chapter}, ${v})">📝 nota</span>`
           : '';
 
         return `
-          <div class="parallel-pair ${isFav ? 'favorited' : ''}" id="v-${v}" onclick="selectVerse(${bookId}, ${chapter}, ${v})">
+          <div class="parallel-pair ${hlClass}" id="v-${v}" onclick="selectVerse(${bookId}, ${chapter}, ${v})">
             <div>
               <span class="mobile-v-label">RV60</span>
-              <span class="v-sup">${v}</span>${rvVerses[v] || '—'}
+              <span class="v-sup">${v}</span>${starHtml}${rvVerses[v] || '—'}
             </div>
             <div>
               <span class="mobile-v-label">BTX4</span>
@@ -718,24 +772,24 @@
           </div>`;
       }).join('');
     } else {
-      // MODO INDIVIDUAL (RV1960 o BTX4): Párrafo continuo de libro tradicional
       container.className = 'continuous-reading';
       const activeVerses = currentMode === 'rv' ? rvVerses : btxVerses;
 
       container.innerHTML = allVerseNums.map(v => {
         const favId = `${bookId}-${chapter}-${v}`;
         const isFav = favorites.some(f => f.id === favId);
+        const hlClass = highlights[favId] || (isFav ? 'hl-yellow' : '');
+        const starHtml = isFav ? '<span class="fav-star-inline">★</span>' : '';
         const hasComment = currentMode === 'btx' && Boolean(currentChapterComments[v]);
         const commentBadge = hasComment
           ? `<span class="comment-dot" onclick="event.stopPropagation(); showVerseComment(${bookId}, ${chapter}, ${v})">📝</span>`
           : '';
 
-        return `<span class="verse-inline ${isFav ? 'favorited' : ''}" id="v-${v}" onclick="selectVerse(${bookId}, ${chapter}, ${v})"><span class="v-sup">${v}</span>${activeVerses[v] || ''}${commentBadge} </span>`;
+        return `<span class="verse-inline ${hlClass}" id="v-${v}" onclick="selectVerse(${bookId}, ${chapter}, ${v})"><span class="v-sup">${v}</span>${starHtml}${activeVerses[v] || ''}${commentBadge} </span>`;
       }).join('');
     }
   }
 
-  // Seleccionar un versículo al hacer clic para mostrar la barra inferior limpia
   function selectVerse(bookId, chapter, verse) {
     document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     const row = document.getElementById(`v-${verse}`);
@@ -748,7 +802,7 @@
     const isFav = favorites.some(f => f.id === favId);
 
     document.getElementById('selectedVerseLabel').textContent = `${bookName} ${chapter}:${verse}`;
-    document.getElementById('toolbarFavBtn').textContent = isFav ? '★ Quitar Favorito' : '☆ Guardar Favorito';
+    document.getElementById('toolbarFavBtn').textContent = isFav ? '★ Quitar' : '☆ Favorito';
     document.getElementById('toolbarCommentBtn').classList.toggle('hidden', !currentChapterComments[verse]);
     document.getElementById('SelectionToolbar').classList.remove('hidden');
   }
@@ -757,6 +811,34 @@
     selectedVerse = null;
     document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     document.getElementById('SelectionToolbar').classList.add('hidden');
+  }
+
+  // Subrayar con color de estudio
+  function setHighlight(colorClass) {
+    if (!selectedVerse) return;
+    const { bookId, bookName, chapter, verse } = selectedVerse;
+    const id = `${bookId}-${chapter}-${verse}`;
+
+    if (highlights[id] === colorClass) {
+      delete highlights[id];
+    } else {
+      highlights[id] = colorClass;
+      // Añadir automáticamente a favoritos si no estaba
+      if (!favorites.some(f => f.id === id)) {
+        const rvVerses = getChapterVerses('rv', bookId, chapter);
+        const btxVerses = getChapterVerses('btx', bookId, chapter);
+        favorites.unshift({
+          id, bookId, bookName, chapter, verse,
+          rvText: rvVerses[verse] || '',
+          btxText: btxVerses[verse] || '',
+          note: '',
+          createdAt: new Date().toLocaleDateString('es-CL')
+        });
+        saveFavorites();
+      }
+    }
+    localStorage.setItem('bible_highlights_v1', JSON.stringify(highlights));
+    loadChapter();
   }
 
   function showVerseComment(bookId, chapter, verse) {
@@ -786,8 +868,48 @@
     }
 
     document.getElementById('modalTitle').textContent = `Nota Especial BTX4 — §${padded}`;
-    document.getElementById('modalBody').innerHTML = definition || `<p>Entrada §${padded} no encontrada.</p>`;
+    document.getElementById('modalBody').innerHTML = definition || `<p>No se encontró la entrada §${padded}.</p>`;
     document.getElementById('modalBackdrop').style.display = 'flex';
+  }
+
+  // Explorador directo del Diccionario BTX4
+  function openDictionaryBrowser() {
+    const db = dbInstances.dctx;
+    if (!db) return;
+    let topics = [];
+    try {
+      const stmt = db.prepare("SELECT Topic FROM Dictionary ORDER BY Topic ASC LIMIT 400");
+      while (stmt.step()) {
+        topics.push(stmt.getAsObject().Topic);
+      }
+      stmt.free();
+    } catch (e) {}
+
+    document.getElementById('modalTitle').textContent = '📚 Índice de Notas Especiales BTX4 (§)';
+    document.getElementById('modalBody').innerHTML = `
+      <p style="margin-bottom:1rem; color:var(--text-secondary);">Selecciona cualquier numeral o tema para abrir su estudio crítico-textual:</p>
+      <div style="display:flex; flex-wrap:wrap; gap:0.45rem;">
+        ${topics.map(t => `<button onclick="openDictByExactTopic('${t.replace(/'/g, "\\'")}')" style="font-size:0.82rem;">§ ${t}</button>`).join('')}
+      </div>
+    `;
+    document.getElementById('modalBackdrop').style.display = 'flex';
+  }
+
+  function openDictByExactTopic(topic) {
+    const db = dbInstances.dctx;
+    if (!db) return;
+    let def = '';
+    try {
+      const stmt = db.prepare("SELECT Definition FROM Dictionary WHERE Topic = :t LIMIT 1");
+      stmt.bind({ ':t': topic });
+      if (stmt.step()) def = stmt.getAsObject().Definition;
+      stmt.free();
+    } catch (e) {}
+    document.getElementById('modalTitle').textContent = `Estudio BTX4 — ${topic}`;
+    document.getElementById('modalBody').innerHTML = `
+      <button onclick="openDictionaryBrowser()" style="margin-bottom:1rem;">◀ Volver al índice</button>
+      <div>${def}</div>
+    `;
   }
 
   function closeModal() {
@@ -820,6 +942,8 @@
 
     if (idx >= 0) {
       favorites.splice(idx, 1);
+      delete highlights[id];
+      localStorage.setItem('bible_highlights_v1', JSON.stringify(highlights));
     } else {
       const rvVerses = getChapterVerses('rv', bookId, chapter);
       const btxVerses = getChapterVerses('btx', bookId, chapter);
@@ -837,7 +961,7 @@
   }
 
   function saveFavorites() {
-    localStorage.setItem('bible_favorites_v1', JSON.stringify(favorites));
+    localStorage.setItem('bible_favorites_v2', JSON.stringify(favorites));
     updateFavCounter();
   }
 
@@ -848,7 +972,7 @@
   function renderFavorites() {
     const list = document.getElementById('favsList');
     if (favorites.length === 0) {
-      list.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:2rem;">Haz clic sobre cualquier versículo durante tu lectura para guardarlo en favoritos.</p>`;
+      list.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:2.5rem;">Toca cualquier versículo durante tu lectura para subrayarlo o guardarlo en favoritos.</p>`;
       return;
     }
 
@@ -856,15 +980,15 @@
       <div class="fav-item">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
           <strong style="color:var(--accent-color); cursor:pointer; font-size:1.1rem;" onclick="goToVerse(${f.bookId}, ${f.chapter}, ${f.verse})">
-            ${f.bookName} ${f.chapter}:${f.verse} <small style="color:var(--text-secondary); font-weight:normal;">(${f.createdAt})</small>
+            ★ ${f.bookName} ${f.chapter}:${f.verse} <small style="color:var(--text-secondary); font-weight:normal;">(${f.createdAt})</small>
           </strong>
-          <button onclick="removeFavorite('${f.id}')" style="color:#dc2626;">Quitar</button>
+          <button onclick="removeFavorite('${f.id}')" style="color:#ef4444;">Eliminar</button>
         </div>
         <div class="parallel-pair" style="cursor:default;">
           <div><strong style="font-size:0.75rem; color:var(--text-secondary);">RV1960:</strong> ${f.rvText}</div>
           <div><strong style="font-size:0.75rem; color:var(--btx-color);">BTX4:</strong> ${f.btxText}</div>
         </div>
-        <textarea class="fav-note" rows="2" placeholder="Escribe una nota personal..." onchange="updateFavNote('${f.id}', this.value)">${f.note || ''}</textarea>
+        <textarea class="fav-note" rows="2" placeholder="Añade una nota de estudio personal..." onchange="updateFavNote('${f.id}', this.value)">${f.note || ''}</textarea>
       </div>
     `).join('');
   }
@@ -876,6 +1000,8 @@
 
   function removeFavorite(id) {
     favorites = favorites.filter(f => f.id !== id);
+    delete highlights[id];
+    localStorage.setItem('bible_highlights_v1', JSON.stringify(highlights));
     saveFavorites();
     renderFavorites();
   }
@@ -910,7 +1036,7 @@
     document.getElementById('favsSection').classList.add('hidden');
     document.getElementById('readerSection').classList.remove('hidden');
     document.getElementById('parallelHeaders').classList.add('hidden');
-    document.getElementById('currentTitle').textContent = `Resultados para "${query}"`;
+    document.getElementById('currentTitle').textContent = `Búsqueda: "${query}"`;
 
     const container = document.getElementById('versesList');
     container.className = '';
@@ -920,7 +1046,7 @@
       const db = dbInstances[key];
       if (!db) return;
       try {
-        const stmt = db.prepare("SELECT Book, Chapter, Verse, Scripture FROM Bible WHERE Scripture LIKE :q LIMIT 60");
+        const stmt = db.prepare("SELECT Book, Chapter, Verse, Scripture FROM Bible WHERE Scripture LIKE :q LIMIT 70");
         stmt.bind({ ':q': `%${query}%` });
         while (stmt.step()) {
           const r = stmt.getAsObject();
@@ -944,7 +1070,7 @@
               <strong style="color:var(--accent-color);">${bName} ${r.chapter}:${r.verse} (${r.version})</strong> — ${r.text}
             </div>`;
         }).join('')
-      : `<p style="text-align:center; padding:2rem;">No se encontraron coincidencias.</p>`;
+      : `<p style="text-align:center; padding:2rem;">No se encontraron resultados.</p>`;
   }
 
   function prevChapter() {
@@ -982,15 +1108,17 @@
   }
 
   function toggleTheme() {
-    const isDark = document.body.getAttribute('data-theme') === 'dark';
-    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    const current = document.body.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', next);
+    localStorage.setItem('bible_theme', next);
   }
 
   function exportFavorites() {
-    const blob = new Blob([JSON.stringify(favorites, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({ favorites, highlights }, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'versiculos_favoritos.json';
+    a.download = 'estudio_biblico_favoritos.json';
     a.click();
   }
 
@@ -1000,7 +1128,12 @@
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        favorites = JSON.parse(reader.result);
+        const data = JSON.parse(reader.result);
+        favorites = Array.isArray(data) ? data : (data.favorites || []);
+        if (data.highlights) {
+          highlights = data.highlights;
+          localStorage.setItem('bible_highlights_v1', JSON.stringify(highlights));
+        }
         saveFavorites();
         renderFavorites();
       } catch (err) { alert("Archivo JSON inválido."); }
